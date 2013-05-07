@@ -1,5 +1,62 @@
-<h1>ngIRC</h1>
-<p ng-repeat="message in messages">[{{message.date | date:"HH:mm:ss"}}] <{{message.from}}> {{message.message}}</p>
-<form ng-submit="sendMessage()">
-    <input ng-model="message" class="span10">
-</form>
+<div ng-show="connected">
+    <h1>ngIRC
+        <button ng-click="disconnect()" class="btn btn-danger pull-right">
+            <i class="icon-remove"></i> Disconnect
+        </button>
+    </h1>
+    <div class="row">
+        <div class="span9">
+            <scroll-bottom watch="messages" height="625px" class="messages">
+                <p ng-repeat="message in messages">
+                    <small>[{{message.date | date:'HH:mm:ss'}}]</small>
+                    <span ng-show="message.serverMessage">***</span>
+                    <strong>{{message.user}}</strong>: {{message.text}}
+                </p>
+            </scroll-bottom>
+        </div>
+        <div class="span3">
+            <h3>Users List</h3>
+            <p ng-repeat="(nick, level) in users">{{level}}{{nick}}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="span9">
+            <form ng-submit="sendMessage()">
+                <input ng-model="message" class="span8">
+            </form>
+        </div>
+    </div>
+</div>
+
+<div modal="! connected">
+    <form ng-submit="connectClient()" name="connect" class="form-horizontal" novalidate="">
+        <div class="modal-header">
+            <h4>Connect To IRC</h4>
+        </div>
+        <div class="modal-body">
+
+                <div class="control-group">
+                    <label class="control-label" for="server">Server</label>
+                    <div class="controls">
+                        <input type="text" ng-model="server" id="server" required>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="nickname">Nickname</label>
+                    <div class="controls">
+                        <input type="text" ng-model="nickname" id="nickname" required>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="channel">Channel</label>
+                    <div class="controls">
+                        <input type="text" ng-model="channel" id="channel" required>
+                    </div>
+                </div>
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" type="submit" ng-disabled="! connect.$valid">Connect</button>
+        </div>
+    </form>
+</div>
