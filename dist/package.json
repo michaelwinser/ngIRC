@@ -1,4 +1,7 @@
 {
     "name": "ngIRC",
-    "main": "index.html"
+    "main": "index.html",
+    "dependencies": {
+        "irc": "*"
+    }
 }
