@@ -92,7 +92,7 @@ module.exports = function ( grunt ) {
     /**
      * The directory to delete when `grunt clean` is executed.
      */
-    clean: [ '<%= distdir %>' ],
+    clean: ['<%= distdir %>/assets', '<%= distdir %>/tmp', '<%= distdir %>/index.html'],
 
     /**
      * `grunt copy` just copies files from A to B. We use it here to copy our
