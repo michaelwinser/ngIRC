@@ -29,11 +29,62 @@ angular.module('ngBoilerplate.home', [
     })
 
 /**
- * And of course we define a controller for our route.
+ * Obviously this is all hard coded in and will need to be entered in by the user when they first launch
+ * the application.  The code I've added is just to get it working.  And it's working quit well :).
  */
     .controller('HomeCtrl', function HomeController($scope, titleService) {
         titleService.setTitle('Home');
-        $scope.nodeJsVersion = process.version;
+        $scope.messages = [];
 
+        var irc = require('irc'),
+            client = new irc.Client(
+                'hubbard.freenode.net', // Server
+                'ngIRC', // Nickname
+                {
+                    channels: ['#ngIRC'], // Channels to connect to
+                    userName: 'ngIRC',
+                    realName: 'ngIRC IRC client',
+                    port: 6667,
+                    debug: false,
+                    showErrors: false,
+                    autoRejoin: true,
+                    autoConnect: true,
+                    secure: false,
+                    selfSigned: false,
+                    certExpired: false,
+                    floodProtection: false,
+                    floodProtectionDelay: 1000,
+                    stripColors: false,
+                    channelPrefixes: "&#",
+                    messageSplit: 512
+                }
+            );
+
+        /**
+         * message#channel event does not run the callback for messages sent from the client
+         * which is the reason we have to manually push() in the message in the $scope.sendMessage()
+         * function.
+         */
+        client.addListener('message#ngIRC', function(from, message) {
+            $scope.messages.push({
+                date: new Date(),
+                from: from,
+                message: message
+            });
+
+            $scope.$digest();
+        });
+
+        $scope.sendMessage = function() {
+            $scope.messages.push({
+                date: new Date(),
+                from: 'ngIRC',
+                message: $scope.message
+            });
+
+            client.say('#ngIRC', $scope.message);
+
+            $scope.message = '';
+        };
     })
 ;
