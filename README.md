@@ -1,2 +1,2 @@
-ngirc
+ngIRC
 =====
