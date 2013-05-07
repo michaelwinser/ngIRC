@@ -9,3 +9,8 @@ To install:
 4. `cd dist && npm install`
 
 To run server: `$grunt watch`
+
+Supporting Files
+================
+
+[Wireframe](http://i.imgur.com/9qseDqL.png)

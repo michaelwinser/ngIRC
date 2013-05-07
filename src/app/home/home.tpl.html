@@ -1,5 +1,4 @@
 <h1>ngIRC</h1>
-<h3>Messages</h3>
 <p ng-repeat="message in messages">[{{message.date | date:"HH:mm:ss"}}] <{{message.from}}> {{message.message}}</p>
 <form ng-submit="sendMessage()">
     <input ng-model="message" class="span10">
