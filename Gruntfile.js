@@ -311,7 +311,8 @@ module.exports = function ( grunt ) {
         files: [ 
           '<%= src.js %>'
         ],
-        tasks: [ 'jshint:src', 'karma:unit:run', 'concat:dist', 'ngmin:dist', 'uglify:dist' ]
+        //tasks: [ 'jshint:src', 'karma:unit:run', 'concat:dist', 'ngmin:dist', 'uglify:dist' ]
+        tasks: [ 'jshint:src', 'concat:dist', 'ngmin:dist', 'uglify:dist' ]
       },
 
       /**
@@ -361,7 +362,8 @@ module.exports = function ( grunt ) {
         files: [
           '<%= src.unit %>'
         ],
-        tasks: [ 'jshint:test', 'karma:unit:run' ],
+        //tasks: [ 'jshint:test', 'karma:unit:run' ],
+        tasks: [ 'jshint:test' ],
         options: {
           livereload: false
         }
