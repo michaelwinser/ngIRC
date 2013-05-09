@@ -68,11 +68,33 @@ angular.module('ngBoilerplate.home', [
                 $scope.$digest();
             });
 
-            client.addListener('message#' + $scope.channel, function(from, message) {
+            client.addListener('join', function(channel, nick, raw) {
+                $scope.messages.push({
+                    date: new Date(),
+                    user: 'System',
+                    text: '*** '+ nick + ' has joined ' + channel,
+                    serverMessage: true
+                });
+
+                $scope.$digest();
+            });
+
+            client.addListener('part', function(channel, nick, raw) {
+                $scope.messages.push({
+                    date: new Date(),
+                    user: 'System',
+                    text: '*** '+ nick + ' has left ' + channel,
+                    serverMessage: true
+                });
+
+                $scope.$digest();
+            });
+
+            client.addListener('message', function(from, channel, text, raw) {
                 $scope.messages.push({
                     date: new Date(),
                     user: from,
-                    text: message
+                    text: text
                 });
 
                 $scope.$digest();
@@ -82,6 +104,13 @@ angular.module('ngBoilerplate.home', [
                 $scope.users = nicks;
 
                 $scope.$digest();
+            });
+
+            /**
+             * Catch Errors
+             */
+            client.addListener('error', function(error) {
+                console.log(error);
             });
         };
 
