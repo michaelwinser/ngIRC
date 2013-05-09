@@ -21,7 +21,7 @@ angular.module('ngBoilerplate.home', [
                 }
             },
             joinChannel = function(channel) {
-                ircServer.join(channel, function() {
+                ircServer.join(channel, function(channel) {
                     $scope.channels[channel] = {
                         messages: [],
                         users: {},

@@ -8,14 +8,15 @@ angular.module('ngBoilerplate.home.services', [])
             pingInterval = 1000 * 60 * 2,
             ircServer = {
                 join: function(channel, callback) {
-                    return this.channel(channel, callback);
+                    client.join(channel, function(nick, raw) {
+                        var actualChannel = raw.args[0];
+                        channels[actualChannel] = channelServer(actualChannel);
+                        callback(actualChannel);
+                    });
                 },
-                channel: function(channel, callback) {
+                channel: function(channel) {
                     if (typeof channels[channel] === 'undefined') {
-                        client.join(channel, function() {
-                            channels[channel] = channelServer(channel);
-                            callback();
-                        });
+                        throw new Error('You have not joined this channel yet: ' + channel);
                     }
 
                     return channels[channel];
@@ -356,11 +357,12 @@ angular.module('ngBoilerplate.home.services', [])
             disconnect: function(quitMessage, fn) {
                 client.disconnect(quitMessage, function() {
                     // Reset all after disconnect
-                    client = null;
-                    channels = {};
-                    clearInterval(pinger);
                     $rootScope.$apply(fn);
                 });
+
+                client = null;
+                channels = {};
+                clearInterval(pinger);
             }
         };
     });
