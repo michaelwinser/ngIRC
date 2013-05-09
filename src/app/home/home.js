@@ -48,6 +48,10 @@ angular.module('ngBoilerplate.home', [
             channel: null
         };
 
+        $scope.modalOpts = {
+            backdropClick: false
+        };
+
         $scope.connectClient = function() {
             if (! $scope.inputs.nickname || ! $scope.inputs.initialChannel) {
                 return;

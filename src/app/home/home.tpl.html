@@ -5,9 +5,9 @@
         </button>
     </h1>
     <div class="pull-right" ng-show="connected">
-        <form ng-submit="addChannel()" class="form-inline add-channel">
-            <input type="text" ng-model="inputs.channel" placeholder="Join Channel...">
-            <button type="submit" class="btn">Join Channel</button>
+        <form ng-submit="addChannel()" class="form-inline add-channel" name="addChannelForm" novalidate>
+            <input type="text" ng-model="inputs.channel" placeholder="Join Channel..." required>
+            <button type="submit" class="btn" ng-disabled="! addChannelForm.$valid">Join Channel</button>
         </form>
     </div>
     <tabs>
@@ -50,7 +50,7 @@
     </tabs>
 </div>
 
-<div modal="! connecting">
+<div modal="! connecting" options="modalOpts">
     <form ng-submit="connectClient()" name="connect" class="form-horizontal" novalidate="">
         <div class="modal-header">
             <h4>Connect To IRC</h4>

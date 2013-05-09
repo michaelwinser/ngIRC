@@ -155,6 +155,9 @@ angular.module('ngBoilerplate.home.services', [])
             },
             disconnect: function(quitMessage, fn) {
                 client.disconnect(quitMessage, function() {
+                    // Reset all after disconnect
+                    client = null;
+                    channels = {};
                     clearInterval(pinger);
                     $rootScope.$apply(fn);
                 });
