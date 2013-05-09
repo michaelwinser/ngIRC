@@ -30,7 +30,6 @@
                     <scroll-bottom watch="data.messages" height="625px" class="messages">
                         <p ng-repeat="message in data.messages">
                             <small>[{{message.date | date:'HH:mm:ss'}}]</small>
-                            <span ng-show="message.serverMessage">***</span>
                             <strong>{{message.user}}</strong>: {{message.text}}
                         </p>
                     </scroll-bottom>

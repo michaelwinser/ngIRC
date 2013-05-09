@@ -85,13 +85,30 @@ angular.module('ngBoilerplate.home', [
         });
 
         $scope.sendMessage = function(channel) {
-            ircServer.channel(channel).say($scope.inputs.message);
+            if ($scope.inputs.message.charAt(0) === '/') {
+                var parts = $scope.inputs.message.match(/^\/(.*?)(?:\s(.*))?$/),
+                    command = parts[1],
+                    args = parts[2];
+                switch (command) {
+                    case 'part':
+                        ircServer.part(channel);
+                        delete $scope.channels[channel];
+                        break;
+                    case 'nick':
+                        ircServer.changeNick(args);
+                        $scope.inputs.nickname = args;
+                        break;
+                }
 
-            addMessage(channel, {
-                date: new Date(),
-                user: $scope.inputs.nickname,
-                text: $scope.inputs.message
-            });
+            } else {
+                ircServer.channel(channel).say($scope.inputs.message);
+
+                addMessage(channel, {
+                    date: new Date(),
+                    user: $scope.inputs.nickname,
+                    text: $scope.inputs.message
+                });
+            }
 
             $scope.inputs.message = '';
         };
@@ -110,6 +127,7 @@ angular.module('ngBoilerplate.home', [
                 $scope.connecting = false;
                 $scope.connected = false;
                 $scope.channels = {};
+                $scope.systemMessages = [];
             });
         };
     })
