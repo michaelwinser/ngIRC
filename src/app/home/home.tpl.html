@@ -1,34 +1,56 @@
-<div ng-show="connected">
+<div ng-show="connecting">
     <h1>ngIRC
         <button ng-click="disconnect()" class="btn btn-danger pull-right">
             <i class="icon-remove"></i> Disconnect
         </button>
     </h1>
-    <div class="row">
-        <div class="span9">
-            <scroll-bottom watch="messages" height="625px" class="messages">
-                <p ng-repeat="message in messages">
-                    <small>[{{message.date | date:'HH:mm:ss'}}]</small>
-                    <span ng-show="message.serverMessage">***</span>
-                    <strong>{{message.user}}</strong>: {{message.text}}
-                </p>
-            </scroll-bottom>
-        </div>
-        <div class="span3">
-            <h3>Users List</h3>
-            <p ng-repeat="(nick, level) in users">{{level}}{{nick}}</p>
-        </div>
+    <div class="pull-right" ng-show="connected">
+        <form ng-submit="addChannel()" class="form-inline add-channel">
+            <input type="text" ng-model="inputs.channel" placeholder="Join Channel...">
+            <button type="submit" class="btn">Join Channel</button>
+        </form>
     </div>
-    <div class="row">
-        <div class="span9">
-            <form ng-submit="sendMessage()">
-                <input ng-model="message" class="span8">
-            </form>
-        </div>
-    </div>
+    <tabs>
+        <pane heading="System Status">
+            <div class="row">
+                <div class="span12">
+                    <scroll-bottom watch="systemMessages" height="625px" class="messages">
+                        <p ng-repeat="message in systemMessages">
+                            <small>[{{message.date | date:'HH:mm:ss'}}]</small>
+                            <span>***</span>
+                            <strong>{{message.user}}</strong>: {{message.text}}
+                        </p>
+                    </scroll-bottom>
+                </div>
+            </div>
+        </pane>
+        <pane ng-repeat="(channel, data) in channels" heading="{{channel}}" active="data.active">
+            <div class="row">
+                <div class="span9">
+                    <scroll-bottom watch="data.messages" height="625px" class="messages">
+                        <p ng-repeat="message in data.messages">
+                            <small>[{{message.date | date:'HH:mm:ss'}}]</small>
+                            <span ng-show="message.serverMessage">***</span>
+                            <strong>{{message.user}}</strong>: {{message.text}}
+                        </p>
+                    </scroll-bottom>
+                </div>
+                <div class="span3 user-window">
+                    <p ng-repeat="(nick, level) in data.users">{{level}}{{nick}}</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="span9">
+                    <form ng-submit="sendMessage(channel)">
+                        <input ng-model="inputs.message" class="span8">
+                    </form>
+                </div>
+            </div>
+        </pane>
+    </tabs>
 </div>
 
-<div modal="! connected">
+<div modal="! connecting">
     <form ng-submit="connectClient()" name="connect" class="form-horizontal" novalidate="">
         <div class="modal-header">
             <h4>Connect To IRC</h4>
@@ -38,21 +60,21 @@
                 <div class="control-group">
                     <label class="control-label" for="server">Server</label>
                     <div class="controls">
-                        <input type="text" class="input-medium" ng-model="server" id="server" required>
+                        <input type="text" class="input-medium" ng-model="inputs.server" id="server" required>
                         :
-                        <input type="text" class="input-mini" ng-model="port" id="port" required>
+                        <input type="text" class="input-mini" ng-model="inputs.port" id="port" required>
                     </div>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="nickname">Nickname</label>
                     <div class="controls">
-                        <input type="text" ng-model="nickname" id="nickname" required>
+                        <input type="text" ng-model="inputs.nickname" id="nickname" required>
                     </div>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="channel">Channel</label>
                     <div class="controls">
-                        <input type="text" ng-model="channel" id="channel" required>
+                        <input type="text" ng-model="inputs.initialChannel" id="channel" required>
                     </div>
                 </div>
 

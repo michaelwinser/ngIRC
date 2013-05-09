@@ -1,6 +1,7 @@
 angular.module('ngBoilerplate.home', [
         'titleService',
-        'ngBoilerplate.home.directives'
+        'ngBoilerplate.home.directives',
+        'ngBoilerplate.home.services'
     ])
 
     .config(function config($routeProvider) {
@@ -10,138 +11,101 @@ angular.module('ngBoilerplate.home', [
         });
     })
 
-    .controller('HomeCtrl', function HomeController($scope, titleService) {
-        var irc = require('irc'),
-            client,
-            pinger,
-            pingInterval = 1000 * 60 * 2; // every 2 mins
-
+    .controller('HomeCtrl', function HomeController($scope, titleService, ircService) {
         titleService.setTitle('ngIRC');
 
-        $scope.messages = [];
-        $scope.users = [];
-        $scope.nickname = '';
-        $scope.channel = 'ngIRC';
-        $scope.server = 'card.freenode.net';
-        $scope.port = 6667;
+        var ircServer,
+            addMessage = function(channel, messageData) {
+                if (typeof $scope.channels[channel] !== 'undefined') {
+                    $scope.channels[channel].messages.push(messageData);
+                }
+            },
+            joinChannel = function(channel) {
+                ircServer.join(channel, function() {
+                    $scope.channels[channel] = {
+                        messages: [],
+                        users: {},
+                        active: true
+                    };
+                    addMessage(channel, {
+                        date: new Date(),
+                        user: 'System',
+                        text: '*** Now talking on ' + channel
+                    });
+                });
+            };
+
+        $scope.channels = {};
+        $scope.systemMessages = [];
+        $scope.connecting = false;
         $scope.connected = false;
+        $scope.inputs = {
+            server: 'chat.freenode.net',
+            port: 6667,
+            nickname: null,
+            message: null,
+            initialChannel: '#ngIRC',
+            channel: null
+        };
 
         $scope.connectClient = function() {
-            if (! $scope.nickname || ! $scope.channel) {
+            if (! $scope.inputs.nickname || ! $scope.inputs.initialChannel) {
                 return;
             }
 
-            $scope.connected = true;
+            $scope.connecting = true;
 
-            client = new irc.Client(
-                $scope.server, // Server
-                $scope.nickname, // Nickname
-                {
-                    channels: ['#' + $scope.channel], // Channels to connect to
-                    port: $scope.port
-                }
-            );
+            ircService
+                .connect($scope.inputs.server, $scope.inputs.nickname, {port: $scope.inputs.port})
+                .success(function(server) {
+                    ircServer = server;
+                    if ($scope.inputs.initialChannel.charAt(0) !== '#') {
+                        $scope.inputs.initialChannel = '#' + $scope.inputs.initialChannel;
+                    }
 
-            client.addListener('notice', function(nick, to, text) {
-                $scope.messages.push({
-                    date: new Date(),
-                    user: 'System',
-                    text: text,
-                    serverMessage: true
+                    joinChannel($scope.inputs.initialChannel);
+                    $scope.connected = true;
                 });
-
-                $scope.$digest();
-            });
-
-            client.addListener('registered', function(raw) {
-                $scope.messages.push({
-                    date: new Date(),
-                    user: 'System',
-                    text: raw.args[1],
-                    serverMessage: true
-                });
-
-                pinger = setInterval(function() {
-                    client.send('PING', $scope.server);
-                }, pingInterval);
-
-                $scope.$digest();
-            });
-
-            client.addListener('join', function(channel, nick, raw) {
-                $scope.messages.push({
-                    date: new Date(),
-                    user: 'System',
-                    text: '*** '+ nick + ' has joined ' + channel,
-                    serverMessage: true
-                });
-
-                $scope.$digest();
-            });
-
-            client.addListener('part', function(channel, nick, raw) {
-                $scope.messages.push({
-                    date: new Date(),
-                    user: 'System',
-                    text: '*** '+ nick + ' has left ' + channel,
-                    serverMessage: true
-                });
-
-                $scope.$digest();
-            });
-
-            client.addListener('message', function(from, channel, text, raw) {
-                $scope.messages.push({
-                    date: new Date(),
-                    user: from,
-                    text: text
-                });
-
-                $scope.$digest();
-            });
-
-            client.addListener('names', function(channel, nicks) {
-                $scope.users = nicks;
-
-                $scope.$digest();
-            });
-
-            /**
-             * Catch Errors
-             */
-            client.addListener('error', function(error) {
-                console.log(error);
-            });
         };
 
-        $scope.sendMessage = function() {
-            if (client) {
-                /**
-                 * message#channel event does not run the callback for messages sent from the client
-                 * which is the reason we have to manually push() in the message in the $scope.sendMessage()
-                 * function.
-                 */
-                $scope.messages.push({
-                    date: new Date(),
-                    user: $scope.nickname,
-                    text: $scope.message
-                });
+        $scope.$on('irc.message', function(event, data) {
+            addMessage(data.channel, data);
+        });
 
-                client.say('#' + $scope.channel, $scope.message);
+        $scope.$on('irc.systemMessage', function(event, data) {
+            $scope.systemMessages.push(data);
+        });
 
-                $scope.message = '';
+        $scope.$on('irc.nicks', function(event, data) {
+            $scope.channels[data.channel].users = data.nicks;
+        });
+
+        $scope.sendMessage = function(channel) {
+            ircServer.channel(channel).say($scope.inputs.message);
+
+            addMessage(channel, {
+                date: new Date(),
+                user: $scope.inputs.nickname,
+                text: $scope.inputs.message
+            });
+
+            $scope.inputs.message = '';
+        };
+
+        $scope.addChannel = function() {
+            if ($scope.inputs.channel.charAt(0) !== '#') {
+                $scope.inputs.channel = '#' + $scope.inputs.channel;
             }
+
+            joinChannel($scope.inputs.channel);
+            $scope.inputs.channel = '';
         };
 
-        /**
-         * TODO: Fix disconnect when it's already timed out.
-         */
         $scope.disconnect = function() {
-            client.disconnect('Cya bitches!', function() {
+            ircService.disconnect('Cya bitches!', function() {
+                $scope.connecting = false;
                 $scope.connected = false;
-                clearInterval(pinger);
-                $scope.messages = [];
-                $scope.$digest();
+                $scope.channels = {};
             });
         };
     })

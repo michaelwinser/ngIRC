@@ -4,9 +4,9 @@
     "window": {
         "toolbar": true,
         "width": 1024,
-        "height": 768,
+        "height": 823,
         "min_width": 1024,
-        "min_height": 768
+        "min_height": 823
     },
     "dependencies": {
         "irc": "*"

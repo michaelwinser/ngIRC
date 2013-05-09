@@ -10,20 +10,7 @@
  * project should be imported as the rest are just wasting space.
  */
 
-@import '../../vendor/bootstrap/less/mixins.less';
-@import '../../vendor/bootstrap/less/reset.less';
-@import '../../vendor/bootstrap/less/utilities.less';
-@import '../../vendor/bootstrap/less/scaffolding.less';
-@import '../../vendor/bootstrap/less/type.less';
-@import '../../vendor/bootstrap/less/grid.less';
-@import '../../vendor/bootstrap/less/layouts.less';
-@import '../../vendor/bootstrap/less/navs.less';
-@import '../../vendor/bootstrap/less/navbar.less';
-@import '../../vendor/bootstrap/less/buttons.less';
-@import '../../vendor/bootstrap/less/button-groups.less';
-@import '../../vendor/bootstrap/less/dropdowns.less';
-@import '../../vendor/bootstrap/less/modals.less';
-@import '../../vendor/bootstrap/less/forms.less';
+@import '../../vendor/bootstrap/less/bootstrap.less';
 
 
 /**
@@ -80,82 +67,6 @@ pre {
 h2 {
   margin: 20px 0;
   color: #666;
-}
-
-
-/**
- * Navigation
- */
-
-.navbar {
-  .navbar-inner {
-    padding: 0;
-  }
-
-  .nav {
-    margin: 0;
-    display: table;
-    width: 100%;
-
-    li {
-      display: table-cell;
-      width: 1%;
-      float: none;
-
-      a {
-        font-weight: bold;
-        text-align: center;
-        //border-left: 1px solid rgba(255, 255, 255, 0.75);
-        border-right: 1px solid rgba(0, 0, 0, .1);
-      }
-      
-      &:first-child a {
-        border-left: 0;
-        border-radius: 3px 0 0 3px;
-      }
-      
-      &:last-child a {
-        border-right: 0;
-        border-radius: 3px 0 0 3px;
-      }
-    }
-  }
-}
-
-
-/**
- * Footer
- */
-
-.footer {
-  margin-top: 80px;
-
-  .footer-inner {
-    padding: 40px 0;
-    border-top: 1px solid #DDD;
-  }
-
-  .social {
-    float: right;
-    margin: 0;
-    list-style: none;
-
-    li {
-      float: left;
-      margin-left: 20px;
-
-      a, a:visited {
-        color: @grayLight;
-        text-decoration: none;
-        font-size: 40px;
-        .transition( 250ms ease-in-out );
-
-        &:hover {
-          color: @gray;
-        }
-      }
-    }
-  }
 }
 
 
