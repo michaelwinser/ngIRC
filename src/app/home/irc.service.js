@@ -205,23 +205,6 @@ angular.module('ngBoilerplate.home.services', [])
                     });
 
                     /**
-                     * Emitted when a user disconnects from the IRC, leaving the specified array of channels.
-                     */
-                    client.addListener('quit', function(nick, reason, channels, raw) {
-                        $rootScope.$apply(function() {
-                            for (var i = 0; i < channels.length; i++) {
-                                $rootScope.$broadcast('irc.message', {
-                                    date: new Date(),
-                                    channel: channels[i],
-                                    user: 'System',
-                                    text: '*** '+ nick + ' has quit IRC: ' + reason,
-                                    raw: raw
-                                });
-                            }
-                        });
-                    });
-
-                    /**
                      * Emitted when a user is killed from the IRC server. channels is an array of channels the killed
                      * user was in which are known to the client.
                      */
@@ -242,7 +225,7 @@ angular.module('ngBoilerplate.home.services', [])
                     /**
                      * Emitted when a user changes nick along with the channels the user is in.
                      */
-                    client.addListener('nicks', function(oldNick, newNick, channels, raw) {
+                    client.addListener('nick', function(oldNick, newNick, channels, raw) {
                         $rootScope.$apply(function() {
                             for (var i = 0; i < channels.length; i++) {
                                 $rootScope.$broadcast('irc.message', {
