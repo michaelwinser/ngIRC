@@ -1,4 +1,4 @@
-angular.module('ngBoilerplate.home.directives', [])
+angular.module('ngBoilerplate.home.scrollBottom', [])
     .directive('scrollBottom', function () {
         return {
             restrict: 'E',

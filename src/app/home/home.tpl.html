@@ -15,11 +15,12 @@
             <div class="row">
                 <div class="span12">
                     <scroll-bottom watch="systemMessages" height="625px" class="messages">
-                        <p ng-repeat="message in systemMessages">
+                        <div ng-repeat="message in systemMessages">
                             <small>[{{message.date | date:'HH:mm:ss'}}]</small>
                             <span>***</span>
-                            <strong>{{message.user}}</strong>: {{message.text}}
-                        </p>
+                            <strong>{{message.user}}</strong>:
+                            <irc-message message="message.text"></irc-message>
+                        </div>
                     </scroll-bottom>
                 </div>
             </div>
@@ -28,10 +29,11 @@
             <div class="row">
                 <div class="span9">
                     <scroll-bottom watch="data.messages" height="625px" class="messages">
-                        <p ng-repeat="message in data.messages">
+                        <div ng-repeat="message in data.messages">
                             <small>[{{message.date | date:'HH:mm:ss'}}]</small>
-                            <strong>{{message.user}}</strong>: {{message.text}}
-                        </p>
+                            <strong>{{message.user}}</strong>:
+                            <irc-message message="message.text"></irc-message>
+                        </div>
                     </scroll-bottom>
                 </div>
                 <div class="span3 user-window">
@@ -55,7 +57,6 @@
             <h4>Connect To IRC</h4>
         </div>
         <div class="modal-body">
-
                 <div class="control-group">
                     <label class="control-label" for="server">Server</label>
                     <div class="controls">
@@ -76,7 +77,6 @@
                         <input type="text" ng-model="inputs.initialChannel" id="channel" required>
                     </div>
                 </div>
-
         </div>
         <div class="modal-footer">
             <button class="btn btn-success" type="submit" ng-disabled="! connect.$valid">Connect</button>

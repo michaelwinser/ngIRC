@@ -1,7 +1,8 @@
 angular.module('ngBoilerplate.home', [
         'titleService',
-        'ngBoilerplate.home.directives',
-        'ngBoilerplate.home.services'
+        'ngBoilerplate.home.scrollBottom',
+        'ngBoilerplate.home.ircMessage',
+        'ngBoilerplate.home.ircService'
     ])
 
     .config(function config($routeProvider) {
@@ -14,6 +15,9 @@ angular.module('ngBoilerplate.home', [
     .controller('HomeCtrl', function HomeController($scope, titleService, ircService) {
         titleService.setTitle('ngIRC');
 
+        /**
+         * Private variables and functions
+         */
         var ircServer,
             addMessage = function(channel, messageData) {
                 if (typeof $scope.channels[channel] !== 'undefined') {
@@ -21,6 +25,10 @@ angular.module('ngBoilerplate.home', [
                 }
             },
             joinChannel = function(channel) {
+                if (channel.charAt(0) !== '#') {
+                    channel = '#' + channel;
+                }
+
                 ircServer.join(channel, function(channel) {
                     $scope.channels[channel] = {
                         messages: [],
@@ -33,8 +41,19 @@ angular.module('ngBoilerplate.home', [
                         text: '*** Now talking on ' + channel
                     });
                 });
+            },
+            partChannel = function(channel) {
+                ircServer.part(channel);
+                delete $scope.channels[channel];
+            },
+            changeNick = function(newNick) {
+                ircServer.changeNick(newNick);
+                $scope.inputs.nickname = newNick;
             };
 
+        /**
+         * Scope variables and functions
+         */
         $scope.channels = {};
         $scope.systemMessages = [];
         $scope.connecting = false;
@@ -63,43 +82,27 @@ angular.module('ngBoilerplate.home', [
                 .connect($scope.inputs.server, $scope.inputs.nickname, {port: $scope.inputs.port})
                 .success(function(server) {
                     ircServer = server;
-                    if ($scope.inputs.initialChannel.charAt(0) !== '#') {
-                        $scope.inputs.initialChannel = '#' + $scope.inputs.initialChannel;
-                    }
-
                     joinChannel($scope.inputs.initialChannel);
                     $scope.connected = true;
                 });
         };
 
-        $scope.$on('irc.message', function(event, data) {
-            addMessage(data.channel, data);
-        });
-
-        $scope.$on('irc.systemMessage', function(event, data) {
-            $scope.systemMessages.push(data);
-        });
-
-        $scope.$on('irc.nicks', function(event, data) {
-            $scope.channels[data.channel].users = data.nicks;
-        });
-
         $scope.sendMessage = function(channel) {
             if ($scope.inputs.message.charAt(0) === '/') {
                 var parts = $scope.inputs.message.match(/^\/(.*?)(?:\s(.*))?$/),
                     command = parts[1],
-                    args = parts[2];
+                    args = (typeof parts[2] !== 'undefined') ? parts[2].split(' ') : null;
                 switch (command) {
+                    case 'join':
+                        joinChannel(args[0]);
+                        break;
                     case 'part':
-                        ircServer.part(channel);
-                        delete $scope.channels[channel];
+                        partChannel(channel);
                         break;
                     case 'nick':
-                        ircServer.changeNick(args);
-                        $scope.inputs.nickname = args;
+                        changeNick(args[0]);
                         break;
                 }
-
             } else {
                 ircServer.channel(channel).say($scope.inputs.message);
 
@@ -114,10 +117,6 @@ angular.module('ngBoilerplate.home', [
         };
 
         $scope.addChannel = function() {
-            if ($scope.inputs.channel.charAt(0) !== '#') {
-                $scope.inputs.channel = '#' + $scope.inputs.channel;
-            }
-
             joinChannel($scope.inputs.channel);
             $scope.inputs.channel = '';
         };
@@ -130,5 +129,20 @@ angular.module('ngBoilerplate.home', [
                 $scope.systemMessages = [];
             });
         };
+
+        /**
+         * Events broadcasted from ircService
+         */
+        $scope.$on('irc.message', function(event, data) {
+            addMessage(data.channel, data);
+        });
+
+        $scope.$on('irc.systemMessage', function(event, data) {
+            $scope.systemMessages.push(data);
+        });
+
+        $scope.$on('irc.nicks', function(event, data) {
+            $scope.channels[data.channel].users = data.nicks;
+        });
     })
 ;
