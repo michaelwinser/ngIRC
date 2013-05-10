@@ -1,4 +1,4 @@
-angular.module('ngBoilerplate.home.services', [])
+angular.module('ngBoilerplate.home.ircService', [])
 
     .factory('ircService', function ($rootScope, $q) {
         var irc = require('irc'),
@@ -91,9 +91,14 @@ angular.module('ngBoilerplate.home.services', [])
                             });
 
                             pinger = setInterval(function() {
-                                client.send('PING', server);
+                                if (! client) {
+                                    clearInterval(pinger);
+                                } else {
+                                    client.send('PING', server);
+                                }
                             }, pingInterval);
 
+                            // Resolve the promise so the .success() function gets fired
                             deferred.resolve(ircServer);
                         });
                     });
@@ -108,12 +113,6 @@ angular.module('ngBoilerplate.home.services', [])
                                 user: 'System',
                                 text: motd
                             });
-
-                            pinger = setInterval(function() {
-                                client.send('PING', server);
-                            }, pingInterval);
-
-                            deferred.resolve(ircServer);
                         });
                     });
 
