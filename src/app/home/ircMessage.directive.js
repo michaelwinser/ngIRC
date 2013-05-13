@@ -3,7 +3,7 @@ var emailRegex = /([a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-
     nl2brRegex = /([^>\r\n]?)(\r\n|\n\r|\r|\n)/g;
 
 angular.module('ngBoilerplate.home.ircMessage', [])
-    .directive('ircMessage', function () {
+    .directive('ircMessage', function ($compile) {
         return {
             scope: {
                 message: '='
@@ -12,15 +12,17 @@ angular.module('ngBoilerplate.home.ircMessage', [])
             link: function (scope, element) {
                 var text = scope.message;
                 // create clickable emails
-                text = text.replace(emailRegex, '<a href="mailto:$1" target="_blank">$1</a>');
+                text = text.replace(emailRegex, '<external-link href="mailto:$1">$1</external-link>');
 
                 // Create clickable links
-                text = text.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+                text = text.replace(urlRegex, '<external-link href="$1">$1</external-link>');
 
                 // Do nl2br
                 text = text.replace(nl2brRegex, '$1<br>$2');
 
                 element.html(text);
+
+                $compile(element.contents())(scope);
             }
         };
     });

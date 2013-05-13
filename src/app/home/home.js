@@ -2,6 +2,7 @@ angular.module('ngBoilerplate.home', [
         'titleService',
         'ngBoilerplate.home.scrollBottom',
         'ngBoilerplate.home.ircMessage',
+        'ngBoilerplate.home.externalLink',
         'ngBoilerplate.home.ircService'
     ])
 
