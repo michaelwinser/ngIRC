@@ -18,7 +18,7 @@
                         <div ng-repeat="message in systemMessages">
                             <small>[{{message.date | date:'HH:mm:ss'}}]</small>
                             <span>***</span>
-                            <strong>{{message.user}}</strong>:
+                            <strong>{{message.nick}}</strong>:
                             <irc-message message="message.text"></irc-message>
                         </div>
                     </scroll-bottom>
@@ -31,13 +31,13 @@
                     <scroll-bottom watch="data.messages" height="625px" class="messages">
                         <div ng-repeat="message in data.messages">
                             <small>[{{message.date | date:'HH:mm:ss'}}]</small>
-                            <strong>{{message.user}}</strong>:
+                            <strong>{{message.nick}}</strong>:
                             <irc-message message="message.text"></irc-message>
                         </div>
                     </scroll-bottom>
                 </div>
                 <div class="span3 user-window">
-                    <p ng-repeat="(nick, level) in data.users">{{level}}{{nick}}</p>
+                    <p ng-repeat="nick in data.nicks | orderBy:['-level', 'nick']">{{nick.level}}{{nick.nick}}</p>
                 </div>
             </div>
             <div class="row">

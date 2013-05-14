@@ -33,12 +33,12 @@ angular.module('ngBoilerplate.home', [
                 ircServer.join(channel, function(channel) {
                     $scope.channels[channel] = {
                         messages: [],
-                        users: {},
+                        nicks: {},
                         active: true
                     };
                     addMessage(channel, {
                         date: new Date(),
-                        user: 'System',
+                        nick: 'System',
                         text: '*** Now talking on ' + channel
                     });
                 });
@@ -109,7 +109,7 @@ angular.module('ngBoilerplate.home', [
 
                 addMessage(channel, {
                     date: new Date(),
-                    user: $scope.inputs.nickname,
+                    nick: $scope.inputs.nickname,
                     text: $scope.inputs.message
                 });
             }
@@ -143,7 +143,7 @@ angular.module('ngBoilerplate.home', [
         });
 
         $scope.$on('irc.nicks', function(event, data) {
-            $scope.channels[data.channel].users = data.nicks;
+            $scope.channels[data.channel].nicks = data.nicks;
         });
     })
 ;

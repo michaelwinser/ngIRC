@@ -41,6 +41,18 @@ angular.module('ngBoilerplate.home.ircService', [])
             };
 
         return {
+            on: function (eventName, callback) {
+                if (typeof client === 'undefined') {
+                    throw new Error('You must connect to an IRC server first');
+                }
+
+                client.addListener(eventName, function() {
+                    var args = arguments;
+                    $rootScope.$apply(function() {
+                        callback.apply(client, args);
+                    });
+                });
+            },
             connect: function(server, nickname, options) {
                 var deferred = $q.defer(),
                     promise = deferred.promise;
@@ -71,7 +83,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                         $rootScope.$apply(function() {
                             $rootScope.$broadcast('irc.systemMessage', {
                                 date: new Date(),
-                                user: 'System',
+                                nick: 'System',
                                 text: text,
                                 raw: raw
                             });
@@ -85,7 +97,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                         $rootScope.$apply(function() {
                             $rootScope.$broadcast('irc.systemMessage', {
                                 date: new Date(),
-                                user: 'System',
+                                nick: 'System',
                                 text: raw.args[1],
                                 raw: raw
                             });
@@ -110,7 +122,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                         $rootScope.$apply(function() {
                             $rootScope.$broadcast('irc.systemMessage', {
                                 date: new Date(),
-                                user: 'System',
+                                nick: 'System',
                                 text: motd
                             });
                         });
@@ -126,7 +138,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                             $rootScope.$broadcast('irc.message', {
                                 date: new Date(),
                                 channel: channel,
-                                user: from,
+                                nick: from,
                                 text: text,
                                 raw: raw
                             });
@@ -142,7 +154,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                             $rootScope.$broadcast('irc.message', {
                                 date: new Date(),
                                 channel: channel,
-                                user: 'System',
+                                nick: 'System',
                                 text: '*** Topic on ' + channel + ' is:' + topic,
                                 raw: raw
                             });
@@ -150,7 +162,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                             $rootScope.$broadcast('irc.message', {
                                 date: new Date(),
                                 channel: channel,
-                                user: 'System',
+                                nick: 'System',
                                 text: '*** Topic set by: ' + nick,
                                 raw: raw
                             });
@@ -165,7 +177,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                             $rootScope.$broadcast('irc.message', {
                                 date: new Date(),
                                 channel: channel,
-                                user: 'System',
+                                nick: 'System',
                                 text: '*** '+ nick + ' has joined ' + channel,
                                 raw: raw
                             });
@@ -175,12 +187,12 @@ angular.module('ngBoilerplate.home.ircService', [])
                     /**
                      * Emitted when a user parts a channel (including when the client itself parts a channel).
                      */
-                    client.addListener('part', function(channel, nick, raw) {
+                    client.addListener('part', function(channel, nick, reason, raw) {
                         $rootScope.$apply(function() {
                             $rootScope.$broadcast('irc.message', {
                                 date: new Date(),
                                 channel: channel,
-                                user: 'System',
+                                nick: 'System',
                                 text: '*** '+ nick + ' has left ' + channel,
                                 raw: raw
                             });
@@ -196,7 +208,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                                 $rootScope.$broadcast('irc.message', {
                                     date: new Date(),
                                     channel: channels[i],
-                                    user: 'System',
+                                    nick: 'System',
                                     text: '*** '+ nick + ' has quit IRC: ' + reason,
                                     raw: raw
                                 });
@@ -214,7 +226,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                                 $rootScope.$broadcast('irc.message', {
                                     date: new Date(),
                                     channel: channels[i],
-                                    user: 'System',
+                                    nick: 'System',
                                     text: '*** '+ nick + ' has been killed: ' + reason,
                                     raw: raw
                                 });
@@ -231,7 +243,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                                 $rootScope.$broadcast('irc.message', {
                                     date: new Date(),
                                     channel: channels[i],
-                                    user: 'System',
+                                    nick: 'System',
                                     text: '*** '+ oldNick + ' is now: ' + newNick,
                                     raw: raw
                                 });
@@ -247,7 +259,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                             $rootScope.$broadcast('irc.message', {
                                 date: new Date(),
                                 channel: channel,
-                                user: 'System',
+                                nick: 'System',
                                 text: '*** '+ by + ' has kicked ' + nick + ' from the channel: ' + reason,
                                 raw: raw
                             });
@@ -259,8 +271,17 @@ angular.module('ngBoilerplate.home.ircService', [])
                      * joining and on request. The nicks object passed to the callback is keyed by nick names, and has
                      * values ‘’, ‘+’, or ‘@’ depending on the level of that nick in the channel.
                      */
-                    client.addListener('names', function(channel, nicks) {
+                    client.addListener('names', function(channel, rawNicks) {
                         $rootScope.$apply(function() {
+                            var nicks = [];
+                            for (var nick in rawNicks) {
+                                if (rawNicks.hasOwnProperty(nick)) {
+                                    nicks.push({
+                                       level: rawNicks[nick],
+                                       nick: nick
+                                    });
+                                }
+                            }
                             $rootScope.$broadcast('irc.nicks', {
                                 channel: channel,
                                 nicks: nicks
@@ -306,7 +327,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                             $rootScope.$broadcast('irc.message', {
                                 date: new Date(),
                                 channel: channel,
-                                user: 'System',
+                                nick: 'System',
                                 text: '*** '+ by + ' sets mode +' + mode + ' ' + (argument ? argument : ''),
                                 raw: raw
                             });
@@ -325,7 +346,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                             $rootScope.$broadcast('irc.message', {
                                 date: new Date(),
                                 channel: channel,
-                                user: 'System',
+                                nick: 'System',
                                 text: '*** '+ by + ' sets mode -' + mode + ' ' + (argument ? argument : ''),
                                 raw: raw
                             });
@@ -359,7 +380,7 @@ angular.module('ngBoilerplate.home.ircService', [])
                     $rootScope.$apply(fn);
                 });
 
-                client = null;
+                client = undefined;
                 channels = {};
                 clearInterval(pinger);
             }
